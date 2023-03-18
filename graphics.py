@@ -3,18 +3,22 @@ import tkinter.ttk as ttk
 
 
 class Window:
-    def __init__(self) -> None:
+    def __init__(self, bingo_matrix: list) -> None:
         self.window = tk.Tk()
-        self.size = 7
+        self.size = len(bingo_matrix)
+        self.bingo_matrix = bingo_matrix
         self.labels = []
         self.draw()
 
     def handleClick(self, event: tk.Event) -> None:
         label = event.widget
-        label.config(bg="yellow")
-        print(label.cget("text"), label._name)
+        indices = map(lambda x: int(x), label._name.split(" "))
 
-    def markPoint(self, position: int) -> None:
+        if not self.bingo_matrix[indices[0]][indices[1]][1]:
+            label.config(bg="yellow")
+            print(label.cget("text"), label._name)
+
+    def markLine(self, position: int) -> None:
         if position < self.size:
             for label in self.labels[position]:
                 label.config(bg="red")
@@ -27,6 +31,11 @@ class Window:
         else:
             for i in range(self.size):
                 self.labels[i][self.size - 1 - i].config(bg="red")
+
+    def markPoint(self, i: int, j: int) -> None:
+        print("hia")
+        if not self.bingo_matrix[i][j][1]:
+            self.labels[i][j].config(bg="yellow")
 
     def draw(self) -> None:
         grid_frame = tk.Frame()
@@ -42,8 +51,9 @@ class Window:
                 # sticky='nesw' since individual frames have
                 # to expand to all directions when resized
                 frame.grid(row=i, column=j, padx=5, pady=5, sticky="nesw")
-                label = tk.Label(master=frame, text=f"{i} {j}", name=f"{i},{j}")
-                
+                label = tk.Label(
+                    master=frame, text=f"{self.bingo_matrix[i][j][0]}", name=f"{i} {j}"
+                )
 
                 label.bind("<Button-1>", self.handleClick)
                 temp.append(label)
@@ -56,7 +66,9 @@ class Window:
         # fill=tk.BOTH makes the grid_frame expand
         # in X and Y axis when window is resized
         grid_frame.pack(fill=tk.BOTH, expand=True)
+        # self.markLine(14)
         self.window.mainloop()
 
 
-a = Window()
+# a = Window([])
+# a.markPoint(2, 2)
