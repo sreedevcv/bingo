@@ -24,9 +24,12 @@ class Bingo:
 
     def marked_entry(self, r, c):
         # if(self.bingo_matrix[r][c][0]==val):
-        if r == c and r == (self.row) // 2:
+        if r == c and r == (self.row) // 2 and self.row%2!=0:
             self.marked_ele[-2] += 1
             self.marked_ele[-1] += 1
+        elif r == c and r == (self.row) // 2 and self.row%2==0:
+            self.marked_ele[-2] += 1
+            # self.marked_ele[-1] += 1
         elif r == c and r != (self.row) // 2:
             self.marked_ele[-2] += 1
         elif r == self.row - c - 1 and r != c:

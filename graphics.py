@@ -81,5 +81,5 @@ class Window:
         self.window.mainloop()
 
 
-# a = Window([])
+# a = Window()
 # a.markPoint(2, 2)
