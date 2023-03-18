@@ -1,24 +1,33 @@
 import tkinter as tk
 import tkinter.ttk as ttk
-
-# import tk
+from card import Bingo
 
 
 class Window:
-    def __init__(self, bingo_matrix: list) -> None:
+    def __init__(self, bingo: Bingo) -> None:
         self.window = tk.Tk()
-        self.size = len(bingo_matrix)
-        self.bingo_matrix = bingo_matrix
+        self.bingo = bingo
+        self.size = bingo.row
+        self.points = 0
+        self.bingo_matrix = bingo.bingo_matrix
         self.labels = []
         self.draw()
 
     def handleClick(self, event: tk.Event) -> None:
         label = event.widget
-        indices = map(lambda x: int(x), label._name.split(" "))
+        indices = list(map(lambda x: int(x), label._name.split(" ")))
 
         if not self.bingo_matrix[indices[0]][indices[1]][1]:
+            # print(label.cget("text"), label._name)
             label.config(bg="yellow")
-            print(label.cget("text"), label._name)
+            self.bingo_matrix[indices[0]][indices[1]][1] = True
+            self.bingo.marked_entry(indices[0], indices[1])
+
+            for i in range(2 * self.size + 2):
+                if self.bingo.marked_ele[i] == self.size:
+                    self.markLine(i)
+
+            self.bingo.analyse()
 
     def markLine(self, position: int) -> None:
         if position < self.size:

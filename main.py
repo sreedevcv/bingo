@@ -1,3 +1,5 @@
 from graphics import Window
+from card import Bingo
 
-window = Window([])
+bingo = Bingo(6)
+window = Window(bingo)
