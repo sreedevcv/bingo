@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 
+# import tk
+
 
 class Window:
     def __init__(self, bingo_matrix: list) -> None:
