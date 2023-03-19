@@ -1,12 +1,15 @@
+import random
+import threading
+import time
 import tkinter as tk
-import tkinter.ttk as ttk
+# import tkinter.ttk as ttk
 from card import Bingo
 
 
 class Window:
     
     def __init__(self, bingo: Bingo) -> None:
-        self.window = tk.Tk()
+        self.root = tk.Tk(className="Bingo")
         self.bingo = bingo
         self.size = bingo.row
         self.points = 0
@@ -46,7 +49,6 @@ class Window:
                 self.labels[i][self.size - 1 - i].config(bg="red")
 
     def markPoint(self, i: int, j: int) -> None:
-        print("hia")
         if not self.bingo_matrix[i][j][1]:
             self.labels[i][j].config(bg="yellow")
 
@@ -80,8 +82,30 @@ class Window:
         # in X and Y axis when window is resized
         grid_frame.pack(fill=tk.BOTH, expand=True)
         # self.markLine(14)
-        self.window.mainloop()
+        # self.root.mainloop()
 
 
-# a = Window()
-# a.markPoint(2, 2)
+
+class App(threading.Thread):
+    def __init__(self, a):
+        self.a = a
+        threading.Thread.__init__(self)
+        pass
+    
+    def get(self):
+        return self.w
+    
+    def run(self):
+        while True:
+            time.sleep(1)
+            x, y = random.randint(0, 4), random.randint(0, 4)
+            print(x, y)
+            a.markPoint(x, y)
+            # a.markLine(x  + y)
+
+
+a = Window(Bingo(5))
+b = App(a)
+b.start()
+a.root.mainloop()
+# threading.Thread.join(b)

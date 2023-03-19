@@ -2,6 +2,7 @@ import socket
 import threading
 import json
 
+
 class BingoServer:
 
     PORT = 5000
@@ -12,21 +13,25 @@ class BingoServer:
         self.game_size = game_size
         self.connections = []
         self.player_names = []
+        self.data_format = {"name": "", "type": "", "num": -1}
 
     def communicate(self):
         while True:
             for conn, addr in self.connections:
                 print(addr)
-                conn.sendall(bytes('START'))
-                data = conn.recv(1024)
+                
+                self.data_format["type"] = "play"
+                conn.sendall(json.dumps(self.data_format))
 
-                for conn_, addr_ in self.connections:
+                recieved_data: bytes = conn.recv(1024)
+                data = json.loads(recieved_data.decode())
+
+                if data["type"] == "finish":
+                    self.player_count -= 1
+
+                for conn_, _ in self.connections:
                     if conn_ != conn:
-                        if "FINISHED" in data.decode():
-                            conn_.sendall(bytes(data.decode() + " " + addr_))
-                            self.player_count -= 1
-                        else:
-                            conn_.sendall(data)
+                        conn_.sendall(recieved_data)
 
                 if self.player_count == 1:
                     break

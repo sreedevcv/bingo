@@ -9,7 +9,6 @@ def hostGame():
     thread = server.initGame()
     thread.start()
 
-
     thread.join()
 
 hostGame()
