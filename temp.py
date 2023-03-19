@@ -20,4 +20,5 @@ def Joingame():
     card=Bingo(client.game_size)   
     window=Window(card, client=client) 
     
-hostGame()
+# hostGame()
+Joingame()

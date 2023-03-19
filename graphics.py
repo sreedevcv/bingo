@@ -4,17 +4,19 @@ import time
 import tkinter as tk
 # import tkinter.ttk as ttk
 from card import Bingo
+from client import BingoClient
 
 
 class Window:
     
-    def __init__(self, bingo: Bingo) -> None:
+    def __init__(self, bingo: Bingo, client: BingoClient) -> None:
         self.root = tk.Tk(className="Bingo")
         self.bingo = bingo
         self.size = bingo.row
         self.points = 0
         self.bingo_matrix = bingo.bingo_matrix
         self.labels = []
+        self.client = client
         # self.window.wm_/
         self.draw()
 
@@ -22,8 +24,9 @@ class Window:
         label = event.widget
         indices = list(map(lambda x: int(x), label._name.split(" ")))
 
-        if not self.bingo_matrix[indices[0]][indices[1]][1]:
+        if not self.bingo_matrix[indices[0]][indices[1]][1] and self.client.my_turn:
             # print(label.cget("text"), label._name)
+            self.client.my_turn = False
             label.config(bg="yellow")
             self.bingo_matrix[indices[0]][indices[1]][1] = True
             self.bingo.marked_entry(indices[0], indices[1])
@@ -31,8 +34,10 @@ class Window:
             for i in range(2 * self.size + 2):
                 if self.bingo.marked_ele[i] == self.size:
                     self.markLine(i)
-
+            
+            self.client.client_send(label.cget("text"))
             self.bingo.analyse()
+            
 
     def markLine(self, position: int) -> None:
         if position < self.size:
@@ -82,7 +87,7 @@ class Window:
         # in X and Y axis when window is resized
         grid_frame.pack(fill=tk.BOTH, expand=True)
         # self.markLine(14)
-        # self.root.mainloop()
+        self.root.mainloop()
 
 
 
@@ -104,8 +109,10 @@ class App(threading.Thread):
             # a.markLine(x  + y)
 
 
-a = Window(Bingo(5))
-b = App(a)
-b.start()
-a.root.mainloop()
+# a = Window(Bingo(5))
+# b = App(a)
+# b.start()
+# a.root.mainloop()
+
+
 # threading.Thread.join(b)
