@@ -43,7 +43,12 @@ class BingoClient:
             message = self.client.recv(2048).decode()
             print(message)
             response = json.loads(message)
+            try:
+                self.window.logEvent(response)
+            except AttributeError:
+                print("none type error: ")
             print(response["name"], response["type"], response["number"])
+
 
             if response["type"] == "play":
                 self.my_turn = True

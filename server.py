@@ -50,7 +50,6 @@ class BingoServer:
         for i in range(self.player_count):
             conn, addr = sock.accept()
             self.connections.append((conn, addr))
-            print(conn, addr)
 
         print("Passing info...")
         # Give neccessary info to all clients

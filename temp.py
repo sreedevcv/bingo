@@ -24,6 +24,7 @@ def Joingame():
     card = Bingo(client.game_size)
     w = Window(card, client=client, name=client.player_name)
     client.setWindow(w)
+    
     w.start_loop()
 
 

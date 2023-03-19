@@ -8,7 +8,6 @@ from client import BingoClient
 
 
 class Window:
-    
     def __init__(self, bingo: Bingo, client: BingoClient, name) -> None:
         self.root = tk.Tk(className=name)
         self.bingo = bingo
@@ -17,6 +16,9 @@ class Window:
         self.bingo_matrix = bingo.bingo_matrix
         self.labels = []
         self.client = client
+        self.box_width = 75
+        self.padding = 5
+        self.text = None
         # self.window.wm_/
         self.draw()
 
@@ -34,10 +36,9 @@ class Window:
             for i in range(2 * self.size + 2):
                 if self.bingo.marked_ele[i] == self.size:
                     self.markLine(i)
-            
+
             self.client.client_send(label.cget("text"))
             self.bingo.analyse()
-            
 
     def markLine(self, position: int) -> None:
         if position < self.size:
@@ -63,22 +64,21 @@ class Window:
                 if self.bingo.marked_ele[i] == self.size:
                     self.markLine(i)
             self.bingo.analyse()
-        
 
     def draw(self) -> None:
         grid_frame = tk.Frame()
 
         for i in range(self.size):
             # Make the grid responsive
-            grid_frame.rowconfigure(i, weight=1, minsize=75)
-            grid_frame.columnconfigure(i, weight=1, minsize=75)
+            grid_frame.rowconfigure(i, weight=1, minsize=self.box_width)
+            grid_frame.columnconfigure(i, weight=1, minsize=self.box_width)
             temp = []
             for j in range(self.size):
                 frame = tk.Frame(master=grid_frame, relief=tk.RAISED, borderwidth=1)
 
                 # sticky='nesw' since individual frames have
                 # to expand to all directions when resized
-                frame.grid(row=i, column=j, padx=5, pady=5, sticky="nesw")
+                frame.grid(row=i, column=j, padx=self.padding, pady=self.padding, sticky="nesw")
                 label = tk.Label(
                     master=frame, text=f"{self.bingo_matrix[i][j][0]}", name=f"{i} {j}"
                 )
@@ -88,34 +88,43 @@ class Window:
 
                 # expand=True makes the text centered inside the label
                 # fill makes it fill the frame excluding the padding
-                label.pack(padx=5, pady=5, expand=True, fill=tk.BOTH)
+                label.pack(padx=self.padding, pady=self.padding, expand=True, fill=tk.BOTH)
             self.labels.append(temp)
 
         # fill=tk.BOTH makes the grid_frame expand
         # in X and Y axis when window is resized
         grid_frame.pack(fill=tk.BOTH, expand=True)
 
+        # Create a scrollbar
+        scroll_frame = tk.Frame(master=self.root)
+        v_scrollbar = tk.Scrollbar(scroll_frame)
+        v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        # print("length", self.size * (self.box_width + self.padding))
+        self.text = tk.Text(
+            master=scroll_frame,
+            width=self.size * (self.box_width + self.padding) // 6,
+            height=5,
+            wrap=None,
+            yscrollcommand=v_scrollbar.set,
+        )
+        
+        self.text.pack(side=tk.TOP, fill=tk.X)
+        v_scrollbar.config(command=self.text.yview)
+        scroll_frame.pack()
+    
+    def logEvent(self, data: dict):
+        string = ""
+        if data["type"] == "normal":
+            string = f"{data['name']} marked {data['number']}\n"
+
+        self.text.insert(tk.END, string)
+
+
+
     def start_loop(self):
         self.root.mainloop()
 
 
-
-class App(threading.Thread):
-    def __init__(self, a):
-        self.a = a
-        threading.Thread.__init__(self)
-        pass
-    
-    def get(self):
-        return self.w
-    
-    def run(self):
-        while True:
-            time.sleep(1)
-            x, y = random.randint(0, 4), random.randint(0, 4)
-            print(x, y)
-            self.a.markPoint(x, y)
-            # a.markLine(x  + y)
 
 
 # a = Window(Bingo(5))
