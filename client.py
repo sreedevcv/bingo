@@ -1,7 +1,11 @@
+from __future__ import annotations
+import graphics 
 import socket
 import random
 import json
 from _thread import *
+
+# from card import Bingo
 
 # host = "10.42.0.1"
 host = "127.0.0.1"
@@ -17,6 +21,7 @@ class BingoClient:
         self.client.connect((host, port))
         self.game_size = 0
         self.my_turn = False
+        self.window = None
         self.initialize()
         
     def initialize(self):
@@ -30,14 +35,23 @@ class BingoClient:
         start_new_thread(self.client_read, ())
         # start_new_thread(client_send,(,))
 
+    def setWindow(self, window: graphics.Window):
+        self.window = window
+
     def client_read(self):
         while True:
-            message = self.client.recv(1024).decode()
-            # print(message)
+            message = self.client.recv(2048).decode()
+            print(message)
             response = json.loads(message)
             print(response["name"], response["type"], response["number"])
+
             if response["type"] == "play":
                 self.my_turn = True
+            elif response["type"] == "normal":
+                num = int(response["number"])
+                i, j = self.window.bingo.getPointIndices(num)
+                self.window.markPoint(i, j)
+
 
     def client_send(self, num: int):
         s_message["name"] = self.player_name

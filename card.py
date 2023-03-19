@@ -48,7 +48,11 @@ class Bingo:
         if count == self.row:
             print("BINGO game over")
 
-        # else:
+    def getPointIndices(self, val):
+        for i in range(self.row):
+            for j in range(self.row):
+                if self.bingo_matrix[i][j][0] == val:
+                    return i, j
 
     # def find_ele(val):
     #     for i in range(row):

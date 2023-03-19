@@ -2,15 +2,15 @@ import random
 import threading
 import time
 import tkinter as tk
-# import tkinter.ttk as ttk
 from card import Bingo
+
 from client import BingoClient
 
 
 class Window:
     
-    def __init__(self, bingo: Bingo, client: BingoClient) -> None:
-        self.root = tk.Tk(className="Bingo")
+    def __init__(self, bingo: Bingo, client: BingoClient, name) -> None:
+        self.root = tk.Tk(className=name)
         self.bingo = bingo
         self.size = bingo.row
         self.points = 0
@@ -56,6 +56,14 @@ class Window:
     def markPoint(self, i: int, j: int) -> None:
         if not self.bingo_matrix[i][j][1]:
             self.labels[i][j].config(bg="yellow")
+            self.bingo_matrix[i][j][1] = True
+            self.bingo.marked_entry(i, j)
+
+            for i in range(2 * self.size + 2):
+                if self.bingo.marked_ele[i] == self.size:
+                    self.markLine(i)
+            self.bingo.analyse()
+        
 
     def draw(self) -> None:
         grid_frame = tk.Frame()
@@ -86,7 +94,8 @@ class Window:
         # fill=tk.BOTH makes the grid_frame expand
         # in X and Y axis when window is resized
         grid_frame.pack(fill=tk.BOTH, expand=True)
-        # self.markLine(14)
+
+    def start_loop(self):
         self.root.mainloop()
 
 
@@ -105,7 +114,7 @@ class App(threading.Thread):
             time.sleep(1)
             x, y = random.randint(0, 4), random.randint(0, 4)
             print(x, y)
-            a.markPoint(x, y)
+            self.a.markPoint(x, y)
             # a.markLine(x  + y)
 
 

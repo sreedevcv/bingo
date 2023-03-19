@@ -1,6 +1,7 @@
 import socket
 import threading
 import json
+import time
 
 
 class BingoServer:
@@ -36,6 +37,7 @@ class BingoServer:
 
                 if self.player_count == 1:
                     break
+                time.sleep(.01)
 
     def initGame(self) -> threading.Thread:
         sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
