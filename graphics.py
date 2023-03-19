@@ -4,6 +4,7 @@ from card import Bingo
 
 
 class Window:
+    
     def __init__(self, bingo: Bingo) -> None:
         self.window = tk.Tk()
         self.bingo = bingo
@@ -11,6 +12,7 @@ class Window:
         self.points = 0
         self.bingo_matrix = bingo.bingo_matrix
         self.labels = []
+        # self.window.wm_/
         self.draw()
 
     def handleClick(self, event: tk.Event) -> None:

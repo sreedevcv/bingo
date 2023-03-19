@@ -2,6 +2,7 @@ import random
 
 
 class Bingo:
+    
     def __init__(self, size):
         self.row = size
         self.col = size
@@ -9,6 +10,7 @@ class Bingo:
         self.marked_ele = []
         numbers = [x + 1 for x in range(size**2)]
         l = len(numbers)
+    
         for i in range(0, size):
             temp = []
             for j in range(0, size):
