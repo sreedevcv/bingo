@@ -43,19 +43,24 @@ class BingoClient:
             message = self.client.recv(2048).decode()
             print(message)
             response = json.loads(message)
+            print(response["name"], response["type"], response["number"])
+
             try:
                 self.window.logEvent(response)
             except AttributeError:
                 print("none type error: ")
-            print(response["name"], response["type"], response["number"])
 
 
             if response["type"] == "play":
                 self.my_turn = True
+                if self.window != None:
+                    self.window.setPlayerName("You")
+
             elif response["type"] == "normal":
                 num = int(response["number"])
                 i, j = self.window.bingo.getPointIndices(num)
                 self.window.markPoint(i, j)
+                self.window.setPlayerName(response["name"])
 
 
     def client_send(self, num: int):

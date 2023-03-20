@@ -37,7 +37,7 @@ class BingoServer:
 
                 if self.player_count == 1:
                     break
-                time.sleep(.01)
+                time.sleep(.05)
 
     def initGame(self) -> threading.Thread:
         sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
