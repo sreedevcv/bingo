@@ -1,9 +1,10 @@
 from __future__ import annotations
-import graphics 
+import graphics
 import socket
 import random
 import json
 from _thread import *
+
 
 # from card import Bingo
 
@@ -15,7 +16,6 @@ data = ""
 
 
 class BingoClient:
-
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect((host, port))
@@ -23,7 +23,7 @@ class BingoClient:
         self.my_turn = False
         self.window = None
         self.initialize()
-        
+
     def initialize(self):
         self.player_name = "amal" + str(random.randint(0, 10))
         data = bytes(self.player_name, "utf-8")
@@ -31,12 +31,15 @@ class BingoClient:
         data = self.client.recv(1024).decode()
         arr = data.split(" ")
         self.game_size = int(arr[0])
-        # while(data=='start'):
-        start_new_thread(self.client_read, ())
-        # start_new_thread(client_send,(,))
 
     def setWindow(self, window: graphics.Window):
         self.window = window
+
+    # def selOpponent(self, opponent):
+    #     self.opponent = opponent
+
+    def start_reading(self):
+        start_new_thread(self.client_read, ())
 
     def client_read(self):
         while True:
@@ -50,18 +53,17 @@ class BingoClient:
             except AttributeError:
                 print("none type error: ")
 
-
             if response["type"] == "play":
                 self.my_turn = True
-                if self.window != None:
-                    self.window.setPlayerName("You")
+
+                # self.window.setPlayerName("You")
+                # self.opponent.play()
 
             elif response["type"] == "normal":
                 num = int(response["number"])
-                i, j = self.window.bingo.getPointIndices(num)
-                self.window.markPoint(i, j)
-                self.window.setPlayerName(response["name"])
-
+                i, j = self.window.card.getPointIndices(num)
+                self.window.mark_point(i, j)
+                # self.window.setPlayerName(response["name"])
 
     def client_send(self, num: int):
         s_message["name"] = self.player_name

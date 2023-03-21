@@ -18,15 +18,14 @@ def hostGame():
 
 def Joingame():
     client = BingoClient()
-    # time.sleep(2)
     print(client.player_name)
-
     card = Bingo(client.game_size)
     w = Window(card, client=client, name=client.player_name)
     client.setWindow(w)
-    
+    client.start_reading()
     w.start_loop()
 
 
 # hostGame()
-Joingame()
+# Joingame()
+a = Window()

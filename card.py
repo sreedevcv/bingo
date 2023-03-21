@@ -61,3 +61,28 @@ class Bingo:
     #                 marked_entry(val,i,j)
     #             elif(self.bingo_matrix[r][c][1]==True):
     #                 print("Say another number")
+
+    def count_unmarked_cells(self, pos:int) -> int:
+        count = 0
+        if pos < self.row:
+            for i in range(self.row):
+                if self.bingo_matrix[pos][i][1] == False:
+                    count += 1
+            return count
+        if pos < 2 * self.row:
+            for j in range(self.row):
+                if self.bingo_matrix[j][pos - self.row][1] == False:
+                    count += 1
+            return count
+        if pos == 2 * self.row:
+            for i in range(self.row):
+                if self.bingo_matrix[i][i][1] == False:
+                    count += 1
+            return count
+        if pos == 2 * self.row + 1:
+            for i in range(self.row):
+                if self.bingo_matrix[i][self.row - 1 - i][1] == False:
+                    count += 1
+            return count
+        
+        return  0
