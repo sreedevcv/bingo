@@ -1,6 +1,3 @@
-# import random
-# import threading
-# import time
 from __future__ import annotations
 import client
 import server
@@ -185,6 +182,8 @@ class Window:
         if player_name != None:
             self.client.player_name = player_name
 
+        self.client.initialize()
+
         card = Bingo(self.client.game_size)
         self.bingo_matrix = card.bingo_matrix
         self.card = card
@@ -287,8 +286,7 @@ class Window:
             self.points_won_field.configure(text=f"Points: {self.points_won}")
 
     def setPlayerName(self, name: str):
-        # self.info_label.config(text=f'Player: {name}')
-        pass
+        self.info_label.config(text=f'Player: {name}')
 
     def start_loop(self):
         self.root.mainloop()

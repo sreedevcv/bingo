@@ -15,15 +15,20 @@ class BingoServer:
         self.game_size = game_size
         self.connections = []
         self.player_names = []
-        self.data_format = {"name": "", "type": "", "number": -1}
+        self.data_format = {"name": "", "type": "", "number": -1, "turn":0}
 
     def communicate(self):
+        turn = 1
         while True:
-            for conn, addr in self.connections:
-                print(addr)
+            for conn, addr, name in self.connections:
+                print(name)
                 
+                self.data_format["name"] = name
                 self.data_format["type"] = "play"
-                conn.sendall(bytes(json.dumps(self.data_format), "utf-8"))
+                self.data_format["turn"] = turn
+                turn_info = bytes(json.dumps(self.data_format), "utf-8")
+                for _conn, _, _ in self.connections:
+                    _conn.sendall(turn_info)
 
                 recieved_data: bytes = conn.recv(1024)
                 data = json.loads(recieved_data.decode())
@@ -31,13 +36,14 @@ class BingoServer:
                 if data["type"] == "finish":
                     self.player_count -= 1
 
-                for conn_, _ in self.connections:
-                    if conn_ != conn:
-                        conn_.sendall(recieved_data)
+                for _conn, _, _ in self.connections:
+                    if _conn != conn:
+                        _conn.sendall(recieved_data)
 
                 if self.player_count == 1:
                     break
                 time.sleep(.05)
+            turn += 1
 
     def initGame(self) -> threading.Thread:
         sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
@@ -49,7 +55,7 @@ class BingoServer:
         # Wait for everyone to join
         for i in range(self.player_count):
             conn, addr = sock.accept()
-            self.connections.append((conn, addr))
+            self.connections.append([conn, addr])
 
         print("Passing info...")
         # Give neccessary info to all clients
@@ -58,6 +64,7 @@ class BingoServer:
             name = conn.recv(1024)
             conn.sendall(bytes(str(self.game_size) + " " + str(self.player_count), "utf-8"))
             self.player_names.append(name.decode())
+            self.connections[i].append(name.decode())
             print(name.decode())
 
         return threading.Thread(target=self.communicate)

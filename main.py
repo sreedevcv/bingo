@@ -7,7 +7,7 @@ import time
 # window = Window(bingo)
 
 def hostGame():
-    server = BingoServer(game_size=5, player_count=1)
+    server = BingoServer(game_size=5, player_count=2)
     thread = server.initGame()
     thread.start()
 
@@ -15,6 +15,6 @@ def hostGame():
 
 
     
-# hostGame()
+hostGame()
 
-int('aff')
+# int('aff')
