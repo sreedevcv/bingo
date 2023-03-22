@@ -2,9 +2,9 @@ from __future__ import annotations
 import client
 import server
 import tkinter as tk
+from PIL import ImageTk
 from card import Bingo
 import _thread
-# from tkinter import ttk
 
 
 class Window:
@@ -17,20 +17,37 @@ class Window:
         self.padding = 5
         self.points_won = 0
 
-        self.create_start_page()
-        self.root.mainloop()
+        self.create_start_frame()
 
-    def create_start_page(self):
-        self.start_page = tk.Frame(
-            master=self.root, background="green", height=600, width=600
+    def create_start_frame(self):
+        self.start_frame = tk.Frame(
+            master=self.root,
+            background="white",
         )
+
+        logo_img = ImageTk.PhotoImage(file="data/logo.png")
+        logo_label = tk.Label(master=self.start_frame, image=logo_img,)
+
         start_btn = tk.Button(
-            master=self.start_page,
+            master=self.start_frame,
             text="Start",
             command=self.goto_options_frame,
+            # background="red",
         )
-        start_btn.pack(anchor="center", expand=True)
-        self.start_page.pack(fill=tk.BOTH, expand=True, side=tk.TOP)
+
+        logo_label.pack(
+            side=tk.TOP,
+            anchor="center",
+            expand=True,
+        )
+        start_btn.pack(anchor="center", side=tk.TOP, expand=True)
+        self.start_frame.pack(
+            fill=tk.BOTH,
+            expand=True,
+            side=tk.TOP,
+        )
+
+        self.root.mainloop()
 
     def create_info_label(self, game_frame: tk.Frame) -> tk.Frame:
         info_frame = tk.Frame(master=game_frame, relief=tk.RAISED)
@@ -71,15 +88,12 @@ class Window:
         grid_frame = tk.Frame(master=game_frame)
 
         for i in range(self.size):
-            # Make the grid responsive
             grid_frame.rowconfigure(i, weight=1, minsize=self.box_width)
             grid_frame.columnconfigure(i, weight=1, minsize=self.box_width)
             temp = []
+
             for j in range(self.size):
                 frame = tk.Frame(master=grid_frame, relief=tk.RAISED, borderwidth=1)
-
-                # sticky='nesw' since individual frames have
-                # to expand to all directions when resized
                 frame.grid(
                     row=i, column=j, padx=self.padding, pady=self.padding, sticky="nesw"
                 )
@@ -89,9 +103,6 @@ class Window:
 
                 label.bind("<Button-1>", self.handle_click_on_number)
                 temp.append(label)
-
-                # expand=True makes the text centered inside the label
-                # fill makes it fill the frame excluding the padding
                 label.pack(
                     padx=self.padding, pady=self.padding, expand=True, fill=tk.BOTH
                 )
@@ -117,63 +128,69 @@ class Window:
         return scroll_frame
 
     def create_options_frame(self):
-        self.option_frame = tk.Frame(master=self.root, background="blue")
+        self.option_frame = tk.Frame(master=self.root, background="white")
 
-        # create a frame for holding name_label and name_entry
-        name_frame = tk.Frame(master=self.option_frame)
-        name_label = tk.Label(master=name_frame, text="Name")
-        name_entry = tk.Entry(master=name_frame)
-        name_label.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        name_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        name_frame.pack()
+        logo_img = ImageTk.PhotoImage(file="data/logo.png")
+        logo_label = tk.Label(master=self.option_frame, image=logo_img)
+        logo_label.pack(
+            # fill=tk.BOTH, 
+            side=tk.TOP, 
+            anchor="center", 
+            expand=True
+        )
 
-        # Button for joining game
-        join_btn_frame = tk.Frame(master=self.option_frame)
+        join_frame = tk.Frame(master=self.option_frame, background='white')
+
+        name_label = tk.Label(master=join_frame, text="Name        ", background="white")
+        name_entry = tk.Entry(master=join_frame, background="white")
+        name_label.grid(row=0, column=0, sticky='w')
+        name_entry.grid(row=0, column=1, sticky='e')
+
         join_btn = tk.Button(
-            master=join_btn_frame,
+            master=self.option_frame,
             text="Join Game",
             command=lambda: self.start_client(
                 name_entry,
                 join_btn,
             ),
         )
-        join_btn.pack(anchor="center", side=tk.TOP)
-        join_btn_frame.pack(fill=tk.X, anchor="center", pady=20)
 
-        # create a frame for holding game_size_label and game_size_entry
-        game_size_frame = tk.Frame(master=self.option_frame)
-        game_size_label = tk.Label(master=game_size_frame, text="game_size")
-        game_size_entry = tk.Entry(master=game_size_frame)
-        game_size_label.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        game_size_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        game_size_frame.pack(fill=tk.X, anchor="center", pady=20)
+        join_frame.pack(side=tk.TOP, )
+        join_btn.pack(side=tk.TOP, pady=20)
 
-        # create a frame for holding player_count_label and player_count_entry
-        player_count_frame = tk.Frame(master=self.option_frame)
-        player_count_label = tk.Label(master=player_count_frame, text="Player Count")
-        player_count_entry = tk.Entry(master=player_count_frame)
-        player_count_label.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        player_count_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        player_count_frame.pack(fill=tk.X, anchor="center", pady=20)
+        server_frame = tk.Frame(master=self.option_frame, background="white")
+        game_size_label = tk.Label(master=server_frame, text="Game size   ", background="white")
+        game_size_entry = tk.Entry(master=server_frame)
+        game_size_label.grid(row=0, column=0, sticky='w')
+        game_size_entry.grid(row=0, column=1, sticky='e')
+        server_frame.pack( anchor="center", )
+
+        # player_count_frame = tk.Frame(master=self.option_frame, width=30)
+        player_count_label = tk.Label(master=server_frame, text="Player Count", background="white")
+        player_count_entry = tk.Entry(master=server_frame, )
+        player_count_label.grid(row=1, column=0, sticky='w')
+        player_count_entry.grid(row=1, column=1, sticky='e')
 
         # Button for joining game
-        start_server_frame = tk.Frame(master=self.option_frame)
+        
         start_server_btn = tk.Button(
-            master=start_server_frame,
+            master=self.option_frame,
             text="Start Server",
             command=lambda: _thread.start_new_thread(
                 self.create_server,
                 (game_size_entry, player_count_entry, start_server_btn),
             ),
         )
-        start_server_btn.pack(anchor="center", side=tk.TOP)
-        start_server_frame.pack(fill=tk.X, anchor="center", pady=20)
+        start_server_btn.pack(anchor="center", side=tk.TOP, pady=20)
+        # start_server_frame.pack( anchor="center", pady=20)
 
-        self.option_frame.pack(expand=True)
+        server_frame.pack( anchor="center", )
+        self.option_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
         print("options frame packed")
+        self.start_loop()
 
     def goto_game_frame(self):
-        game_frame = tk.Frame(master=self.root)
+        game_frame = tk.Frame(master=self.root, background="white")
         info_frame = self.create_info_label(game_frame)
         grid_frame = self.create_bingo_grid(game_frame)
         scroll_frame = self.create_log_feild(game_frame)
@@ -183,12 +200,12 @@ class Window:
         scroll_frame.pack()
 
         self.option_frame.destroy()
-        game_frame.pack(fill=tk.BOTH, expand=True)
+        game_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
         # return game_frame
 
     def goto_options_frame(self):
-        self.start_page.destroy()
+        self.start_frame.destroy()
         self.create_options_frame()
         print("options frame created")
 

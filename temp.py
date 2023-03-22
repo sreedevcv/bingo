@@ -29,3 +29,29 @@ def Joingame():
 # hostGame()
 # Joingame()
 a = Window()
+
+# from tkinter import *
+# from PIL import Image, ImageTk
+
+# class test:
+#     def __init__(self) -> None:
+        
+#         self.root = Tk()
+#         self.root.title('PythonGuides')
+#         self.create_frame()
+
+#     def create_frame(self):
+#         self.temp = Frame(self.root)
+
+#         img = PhotoImage(file='data/logo.png')
+#         lab = Label(
+#             self.temp,
+#             image=img,
+#             anchor="center"
+#         )
+#         lab.pack()
+#         self.temp.pack()
+#         self.root.mainloop()
+
+
+# a = test()
