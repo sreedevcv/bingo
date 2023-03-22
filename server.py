@@ -20,14 +20,15 @@ class BingoServer:
     def communicate(self):
         turn = 1
         while True:
-            for conn, addr, name in self.connections:
+            for conn, name in self.connections:
                 print(name)
                 
                 self.data_format["name"] = name
                 self.data_format["type"] = "play"
                 self.data_format["turn"] = turn
                 turn_info = bytes(json.dumps(self.data_format), "utf-8")
-                for _conn, _, _ in self.connections:
+                
+                for _conn, _ in self.connections:
                     _conn.sendall(turn_info)
 
                 recieved_data: bytes = conn.recv(1024)
@@ -36,7 +37,7 @@ class BingoServer:
                 if data["type"] == "finish":
                     self.player_count -= 1
 
-                for _conn, _, _ in self.connections:
+                for _conn, _,  in self.connections:
                     if _conn != conn:
                         _conn.sendall(recieved_data)
 
@@ -55,7 +56,7 @@ class BingoServer:
         # Wait for everyone to join
         for i in range(self.player_count):
             conn, addr = sock.accept()
-            self.connections.append([conn, addr])
+            self.connections.append([conn,])
 
         print("Passing info...")
         # Give neccessary info to all clients

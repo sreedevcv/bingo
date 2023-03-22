@@ -2,9 +2,9 @@ from __future__ import annotations
 import client
 import server
 import tkinter as tk
-from tkinter import ttk
 from card import Bingo
 import _thread
+# from tkinter import ttk
 
 
 class Window:
@@ -16,7 +16,6 @@ class Window:
         self.box_width = 75
         self.padding = 5
         self.points_won = 0
-        self.text = None
 
         self.create_start_page()
         self.root.mainloop()
@@ -50,10 +49,20 @@ class Window:
             justify=tk.LEFT,
             relief=tk.RAISED,
         )
+        self.turn_field = tk.Label(
+            master=info_frame,
+            height=2,
+            text="Turn: 0",
+            justify=tk.LEFT,
+            relief=tk.RAISED,
+        )
         self.info_label.pack(
             side=tk.LEFT, fill=tk.X, padx=self.padding, pady=self.padding, expand=True
         )
         self.points_won_field.pack(
+            side=tk.LEFT, fill=tk.X, padx=self.padding, pady=self.padding, expand=True
+        )
+        self.turn_field.pack(
             side=tk.LEFT, fill=tk.X, padx=self.padding, pady=self.padding, expand=True
         )
         return info_frame
@@ -113,15 +122,20 @@ class Window:
         # create a frame for holding name_label and name_entry
         name_frame = tk.Frame(master=self.option_frame)
         name_label = tk.Label(master=name_frame, text="Name")
-        self.name_entry = tk.Entry(master=name_frame)
+        name_entry = tk.Entry(master=name_frame)
         name_label.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        self.name_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
+        name_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
         name_frame.pack()
 
         # Button for joining game
         join_btn_frame = tk.Frame(master=self.option_frame)
         join_btn = tk.Button(
-            master=join_btn_frame, text="Join Game", command=lambda: self.start_client()
+            master=join_btn_frame,
+            text="Join Game",
+            command=lambda: self.start_client(
+                name_entry,
+                join_btn,
+            ),
         )
         join_btn.pack(anchor="center", side=tk.TOP)
         join_btn_frame.pack(fill=tk.X, anchor="center", pady=20)
@@ -129,27 +143,30 @@ class Window:
         # create a frame for holding game_size_label and game_size_entry
         game_size_frame = tk.Frame(master=self.option_frame)
         game_size_label = tk.Label(master=game_size_frame, text="game_size")
-        self.game_size_entry = tk.Entry(master=game_size_frame)
+        game_size_entry = tk.Entry(master=game_size_frame)
         game_size_label.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        self.game_size_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
+        game_size_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
         game_size_frame.pack(fill=tk.X, anchor="center", pady=20)
 
         # create a frame for holding player_count_label and player_count_entry
         player_count_frame = tk.Frame(master=self.option_frame)
         player_count_label = tk.Label(master=player_count_frame, text="Player Count")
-        self.player_count_entry = tk.Entry(master=player_count_frame)
+        player_count_entry = tk.Entry(master=player_count_frame)
         player_count_label.pack(fill=tk.X, side=tk.LEFT, expand=True)
-        self.player_count_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
+        player_count_entry.pack(fill=tk.X, side=tk.LEFT, expand=True)
         player_count_frame.pack(fill=tk.X, anchor="center", pady=20)
 
         # Button for joining game
         start_server_frame = tk.Frame(master=self.option_frame)
-        start_server = tk.Button(
+        start_server_btn = tk.Button(
             master=start_server_frame,
             text="Start Server",
-            command=lambda: _thread.start_new_thread(self.create_server, ()),
+            command=lambda: _thread.start_new_thread(
+                self.create_server,
+                (game_size_entry, player_count_entry, start_server_btn),
+            ),
         )
-        start_server.pack(anchor="center", side=tk.TOP)
+        start_server_btn.pack(anchor="center", side=tk.TOP)
         start_server_frame.pack(fill=tk.X, anchor="center", pady=20)
 
         self.option_frame.pack(expand=True)
@@ -175,15 +192,15 @@ class Window:
         self.create_options_frame()
         print("options frame created")
 
-    def start_client(self):
-        player_name = self.name_entry.get()
-
+    def start_client(self, name_entry, join_btn):
+        player_name = name_entry.get()
+        join_btn.config(text="Joining")
         self.client = client.BingoClient()
+
         if player_name != None:
             self.client.player_name = player_name
 
         self.client.initialize()
-
         card = Bingo(self.client.game_size)
         self.bingo_matrix = card.bingo_matrix
         self.card = card
@@ -192,13 +209,21 @@ class Window:
         self.goto_game_frame()
         self.client.setWindow(self)
         self.client.start_reading()
-        self.start_loop()
+        # self.start_loop()
 
-    def create_server(self):
-        _thread.start_new_thread(self.start_server, ())
+    def create_server(self, game_size_entry, player_count_entry, start_server_btn):
+        _thread.start_new_thread(
+            self.start_server,
+            (
+                game_size_entry,
+                player_count_entry,
+                start_server_btn,
+            ),
+        )
 
-    def start_server(self):
-        data = self.player_count_entry.get()
+    def start_server(self, game_size_entry, player_count_entry, start_server_btn):
+        data = player_count_entry.get()
+        start_server_btn.config(text="Running...")
         pcount = 1
 
         try:
@@ -208,7 +233,7 @@ class Window:
         except ValueError:
             pcount = 1
 
-        data = self.game_size_entry.get()
+        data = game_size_entry.get()
         gcount = 4
         try:
             gcount = int(data)
@@ -217,9 +242,9 @@ class Window:
         except ValueError:
             gcount = 4
 
-        bingo_server = server.BingoServer(gcount, pcount)
-        thread = bingo_server.initGame()
-        thread.start()
+        bingo_server = server.BingoServer(game_size=gcount, player_count=pcount)
+        server_thread = bingo_server.initGame()
+        server_thread.start()
 
     def handle_click_on_number(self, event: tk.Event) -> None:
         label = event.widget
@@ -286,7 +311,10 @@ class Window:
             self.points_won_field.configure(text=f"Points: {self.points_won}")
 
     def setPlayerName(self, name: str):
-        self.info_label.config(text=f'Player: {name}')
+        self.info_label.config(text=f"Player: {name}")
+
+    def update_turn_field(self, turn):
+        self.turn_field.config(text=f"Turn: {turn}")
 
     def start_loop(self):
         self.root.mainloop()

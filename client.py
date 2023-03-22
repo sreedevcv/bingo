@@ -23,6 +23,7 @@ class BingoClient:
         self.my_turn = False
         self.window = None
         self.player_name = "amal"
+        self.turn = 0
         # self.initialize()
 
 
@@ -45,16 +46,13 @@ class BingoClient:
     def client_read(self):
         while True:
             message = self.client.recv(2048).decode()
-            print(message)
             response = json.loads(message)
+            self.window.logEvent(response)
+            self.turn = response["turn"]
+
             print(response["name"], response["type"], response["number"])
-
-            try:
-                self.window.logEvent(response)
-            except AttributeError:
-                print("none type error: ")
-
-            print(self.player_name)
+            print(message)
+            
             if response["type"] == "play" and response["name"] == self.player_name:
                 self.my_turn = True
                 self.window.setPlayerName("You")
@@ -64,10 +62,14 @@ class BingoClient:
                 num = int(response["number"])
                 i, j = self.window.card.getPointIndices(num)
                 self.window.mark_point(i, j)
+            
+            if response["turn"] > 0:
+                self.window.update_turn_field(response["turn"])
 
     def client_send(self, num: int):
         s_message["name"] = self.player_name
         s_message["type"] = "normal"
         s_message["number"] = num
+        s_message["turn"] = self.turn
         message = json.dumps(s_message)
         self.client.sendall(bytes(message, "utf-8"))
