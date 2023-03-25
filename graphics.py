@@ -2,6 +2,7 @@ from __future__ import annotations
 import client
 import server
 import tkinter as tk
+from tkinter.messagebox import showinfo
 from PIL import ImageTk
 from card import Bingo
 import _thread
@@ -26,7 +27,10 @@ class Window:
         )
 
         logo_img = ImageTk.PhotoImage(file="data/logo.png")
-        logo_label = tk.Label(master=self.start_frame, image=logo_img,)
+        logo_label = tk.Label(
+            master=self.start_frame,
+            image=logo_img,
+        )
 
         start_btn = tk.Button(
             master=self.start_frame,
@@ -133,46 +137,61 @@ class Window:
         logo_img = ImageTk.PhotoImage(file="data/logo.png")
         logo_label = tk.Label(master=self.option_frame, image=logo_img)
         logo_label.pack(
-            # fill=tk.BOTH, 
-            side=tk.TOP, 
-            anchor="center", 
-            expand=True
+            # fill=tk.BOTH,
+            side=tk.TOP,
+            anchor="center",
+            expand=True,
         )
 
-        join_frame = tk.Frame(master=self.option_frame, background='white')
+        join_frame = tk.Frame(master=self.option_frame, background="white")
 
-        name_label = tk.Label(master=join_frame, text="Name        ", background="white")
+        name_label = tk.Label(
+            master=join_frame, text="Name        ", background="white"
+        )
         name_entry = tk.Entry(master=join_frame, background="white")
-        name_label.grid(row=0, column=0, sticky='w')
-        name_entry.grid(row=0, column=1, sticky='e')
+        name_label.grid(row=0, column=0, sticky="w")
+        name_entry.grid(row=0, column=1, sticky="e")
 
         join_btn = tk.Button(
             master=self.option_frame,
             text="Join Game",
-            command=lambda: self.start_client(
-                name_entry,
-                join_btn,
-            ),
+            # command=lambda: _thread.start_new_thread(
+            #     self.start_client(
+            #         name_entry,
+            #         join_btn,
+            #     )
+            # ),
+            command=lambda : self.start_client(name_entry, join_btn)
         )
 
-        join_frame.pack(side=tk.TOP, )
+        join_frame.pack(
+            side=tk.TOP,
+        )
         join_btn.pack(side=tk.TOP, pady=20)
 
         server_frame = tk.Frame(master=self.option_frame, background="white")
-        game_size_label = tk.Label(master=server_frame, text="Game size   ", background="white")
+        game_size_label = tk.Label(
+            master=server_frame, text="Game size   ", background="white"
+        )
         game_size_entry = tk.Entry(master=server_frame)
-        game_size_label.grid(row=0, column=0, sticky='w')
-        game_size_entry.grid(row=0, column=1, sticky='e')
-        server_frame.pack( anchor="center", )
+        game_size_label.grid(row=0, column=0, sticky="w")
+        game_size_entry.grid(row=0, column=1, sticky="e")
+        server_frame.pack(
+            anchor="center",
+        )
 
         # player_count_frame = tk.Frame(master=self.option_frame, width=30)
-        player_count_label = tk.Label(master=server_frame, text="Player Count", background="white")
-        player_count_entry = tk.Entry(master=server_frame, )
-        player_count_label.grid(row=1, column=0, sticky='w')
-        player_count_entry.grid(row=1, column=1, sticky='e')
+        player_count_label = tk.Label(
+            master=server_frame, text="Player Count", background="white"
+        )
+        player_count_entry = tk.Entry(
+            master=server_frame,
+        )
+        player_count_label.grid(row=1, column=0, sticky="w")
+        player_count_entry.grid(row=1, column=1, sticky="e")
 
         # Button for joining game
-        
+
         start_server_btn = tk.Button(
             master=self.option_frame,
             text="Start Server",
@@ -184,7 +203,9 @@ class Window:
         start_server_btn.pack(anchor="center", side=tk.TOP, pady=20)
         # start_server_frame.pack( anchor="center", pady=20)
 
-        server_frame.pack( anchor="center", )
+        server_frame.pack(
+            anchor="center",
+        )
         self.option_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
         print("options frame packed")
         self.start_loop()
@@ -212,6 +233,8 @@ class Window:
     def start_client(self, name_entry, join_btn):
         player_name = name_entry.get()
         join_btn.config(text="Joining")
+
+        showinfo("Joining Server", "Waiting for others to join.....",)
         self.client = client.BingoClient()
 
         if player_name != None:
