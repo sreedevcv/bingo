@@ -6,7 +6,7 @@ import time
 
 
 def hostGame():
-    server = BingoServer(game_size=5, player_count=2)
+    server = BingoServer(game_size=5, player_count=3)
     thread = server.initGame()
     thread.start()
 
@@ -14,7 +14,7 @@ def hostGame():
 
 
     
-# hostGame()
+hostGame()
 
 # from tkinter import *
 # from PIL import Image, ImageTk

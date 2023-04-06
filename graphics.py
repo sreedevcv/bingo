@@ -36,7 +36,6 @@ class Window:
             master=self.start_frame,
             text="Start",
             command=self.goto_options_frame,
-            # background="red",
         )
 
         logo_label.pack(
@@ -137,7 +136,6 @@ class Window:
         logo_img = ImageTk.PhotoImage(file="data/logo.png")
         logo_label = tk.Label(master=self.option_frame, image=logo_img)
         logo_label.pack(
-            # fill=tk.BOTH,
             side=tk.TOP,
             anchor="center",
             expand=True,
@@ -155,12 +153,6 @@ class Window:
         join_btn = tk.Button(
             master=self.option_frame,
             text="Join Game",
-            # command=lambda: _thread.start_new_thread(
-            #     self.start_client(
-            #         name_entry,
-            #         join_btn,
-            #     )
-            # ),
             command=lambda : self.start_client(name_entry, join_btn)
         )
 
@@ -180,7 +172,6 @@ class Window:
             anchor="center",
         )
 
-        # player_count_frame = tk.Frame(master=self.option_frame, width=30)
         player_count_label = tk.Label(
             master=server_frame, text="Player Count", background="white"
         )
@@ -201,7 +192,6 @@ class Window:
             ),
         )
         start_server_btn.pack(anchor="center", side=tk.TOP, pady=20)
-        # start_server_frame.pack( anchor="center", pady=20)
 
         server_frame.pack(
             anchor="center",
@@ -223,7 +213,6 @@ class Window:
         self.option_frame.destroy()
         game_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
-        # return game_frame
 
     def goto_options_frame(self):
         self.start_frame.destroy()
@@ -271,7 +260,7 @@ class Window:
             if pcount < 1:
                 raise ValueError
         except ValueError:
-            pcount = 1
+            pcount = 4
 
         data = game_size_entry.get()
         gcount = 4
@@ -280,7 +269,7 @@ class Window:
             if gcount < 4:
                 raise ValueError
         except ValueError:
-            gcount = 4
+            gcount = 6
 
         bingo_server = server.BingoServer(game_size=gcount, player_count=pcount)
         server_thread = bingo_server.initGame()
@@ -290,7 +279,7 @@ class Window:
         label = event.widget
         indices = list(map(lambda x: int(x), label._name.split(" ")))
 
-        if not self.bingo_matrix[indices[0]][indices[1]][1] and self.client.my_turn:
+        if not self.bingo_matrix[indices[0]][indices[1]][1] and self.client.my_turn and self.points_won < self.size:
             self.client.my_turn = False
             label.config(bg="yellow")
             self.bingo_matrix[indices[0]][indices[1]][1] = True
@@ -302,10 +291,16 @@ class Window:
                     self.points_won += 1
                     self.mark_line(i)
 
-            self.client.client_send(label.cget("text"))
             self.logEvent({"type": "my_move", "number": label.cget("text")})
             self.update_points_earned()
+            if self.points_won < self.size:
+                self.client.client_send("normal", label.cget("text"))
+            else:
+                self.client.client_send("finished", label.cget("text"))
             self.card.analyse()
+        
+        elif self.points_won >= self.size :
+            self.client.client_send("finished", label.cget("text"))
 
     def mark_line(self, position: int) -> None:
         if position < self.size:
@@ -323,15 +318,22 @@ class Window:
 
     def mark_point(self, i: int, j: int) -> None:
         if not self.bingo_matrix[i][j][1]:
+            
             self.labels[i][j].config(bg="yellow")
             self.bingo_matrix[i][j][1] = True
             self.card.marked_entry(i, j)
             self.points_won = 0
 
-            for i in range(2 * self.size + 2):
-                if self.card.marked_ele[i] == self.size:
-                    self.mark_line(i)
+            for k in range(2 * self.size + 2):
+                if self.card.marked_ele[k] == self.size:
+                    self.mark_line(k)
                     self.points_won += 1
+            
+            if self.points_won >= self.size :
+                print('error view', i, j)
+                self.client.client_send("finished", self.bingo_matrix[i][j][0])
+            else:
+                self.client.client_send("normal", self.bingo_matrix[i][j][0])
 
             self.update_points_earned()
             self.card.analyse()
@@ -342,6 +344,11 @@ class Window:
             string = f"{data['name']} marked {data['number']}\n"
         elif data["type"] == "my_move":
             string = f"You marked {data['number']}\n"
+        elif data["type"] == "finished":
+            string = f"{data['name']} has finished\n"
+        elif data["type"] == "game_over":
+            string = ('-' * 30) + '\n' + data["rank_list"] + ('-' * 30) + '\n'
+            
 
         self.text.insert(tk.END, string)
         self.text.see(tk.END)
